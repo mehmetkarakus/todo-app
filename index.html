@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Todo Application</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+    <main class="container">
+        <section class="todoapp">
+
+            <div class="todoapp todoapp__title">
+                <h1>Todo Application</h1>
+            </div>
+
+            <div class="todoapp todoapp__form">
+                <form action="todoapp todoapp__input" id="todoapp__form">
+                    <input type="text" placeholder="Todo Title" class="todoapp__input todotitle">
+                    <input type="text" placeholder="Description" class="todoapp__input description">
+                    <button class=" todoapp__input todoapp__button" id="todoapp__add">Create Todo</button>
+                </form>
+            </div>
+
+            <table class="todoapp todoapp__list">
+                <tbody id="todoapp__list">
+                    <tr>
+                        <td>
+                            <input type="checkbox" id="todo__checkbox">
+                        </td>
+                        <td>Name</td>
+                        <td>Description</td>
+                        <td>Status</td>
+                        <td>Action</td>
+                    </tr>
+                </tbody>
+            </table>
+
+        </section>
+    </main>
+    <script src="script.js"></script>
+</body>
+
+</html>
