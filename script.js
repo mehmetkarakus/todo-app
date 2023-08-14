@@ -2,7 +2,19 @@ document.addEventListener('DOMContentLoaded', () => {
     const apiBaseUrl = 'https://mockapi.io/projects/64d68e012a017531bc12bfa6/todoapp'; // API URL'si
 
     const addbtn = document.querySelector('.todoapp__button');
-    addbtn.addEventListener('click', createTodo);
+    addbtn.addEventListener('click', () => {
+        createTodo();
+    });
+
+    const selectAllCheckbox = document.getElementById('select-all-checkbox');
+    const todoCheckboxes = document.querySelectorAll('.new-checkbox');
+
+    selectAllCheckbox.addEventListener('change', () => {
+        const isChecked = selectAllCheckbox.checked;
+        todoCheckboxes.forEach(checkbox => {
+            checkbox.checked = isChecked;
+        });
+    });
 
     function taskNerde(task, taskId) {
         const todolist = document.querySelector('#todoapp__list');
@@ -24,159 +36,167 @@ document.addEventListener('DOMContentLoaded', () => {
         tododescription.textContent = task.description;
         tr.appendChild(tododescription);
 
-        const todostatus = document.createElement('td');
-        const completedspan = document.createElement('span');
-        completedspan.classList.add('pending');
-        completedspan.textContent = 'pending';
-        todostatus.appendChild(completedspan);
-        tr.appendChild(todostatus);
+        const statusCell = document.createElement("td");
+        const pendingSpan = document.createElement("span");
+        pendingSpan.classList.add("pending");
+        pendingSpan.textContent = "pending";
+        statusCell.appendChild(pendingSpan);
+        tr.appendChild(statusCell);
 
-        completedspan.addEventListener('click', function () {
-            const newstatus = !task.status;
-            updatestatus(taskId, newstatus);
-            task.status = newstatus;
-
-            if (newstatus) {
-                completedspan.textContent = 'completed';
-                completedspan.style.backgroundColor = 'green';
-                todoname.style.textDecoration = 'line-through';
-                tododescription.style.textDecoration = 'line-through';
-                tr.style.backgroundColor = '#222';
+        pendingSpan.addEventListener("click", function () {
+            const newStatus = !task.status; 
+            updateStatus(taskId, newStatus); 
+            task.status = newStatus;
+            if (newStatus == true) {
+                pendingSpan.textContent = "completed";
+                pendingSpan.style.backgroundColor = "green";
+                todoname.style.textDecoration = "line-through";
+                tododescription.style.textDecoration = "line-through";
+                tr.style.backgroundColor = "#f0f0f0";
             } else {
-                completedspan.textContent = 'pending';
-                completedspan.style.backgroundColor = 'red';
-                todoname.style.textDecoration = 'none';
-                tododescription.style.textDecoration = 'none';
-                tr.style.backgroundColor = 'white';
+                pendingSpan.textContent = "pending";
+                pendingSpan.style.backgroundColor = "red";
+                todoname.style.textDecoration = "none";
+                tododescription.style.textDecoration = "none";
+                tr.style.backgroundColor = "white";
             }
-
             saveTasksToLocalStorage();
         });
 
-        function updatestatus(taskId, newstatus) {
+        function updateStatus(taskId, newStatus) {
             fetch(`https://64d68e012a017531bc12bfa5.mockapi.io/todoapp/${taskId}`, {
-                method: 'PUT',
-                headers: { 'content-type': 'application/json' },
-                body: JSON.stringify({ status: newstatus }),
+              method: "PUT",
+              headers: { "content-type": "application/json" },
+              body: JSON.stringify({ status: newStatus }),
             })
-                .then((res) => {
-                    if (!res.ok) {
-                        throw new Error('HTTP error ' + res.status);
-                    }
-                })
-                .catch((error) => {
-                    console.error('Error: ', error);
-                });
-        }
-    }
-
-    const actionCell = document.createElement('td');
-    const editspan = document.createElement('span');
-    editspan.textContent = 'Edit';
-    editspan.classList.add('edit');
-    const deletespan = document.createElement('span');
-    deletespan.textContent = 'Delete';
-    deletespan.classList.add('delete');
-    actionCell.appendChild(editspan);
-    actionCell.appendChild(deletespan);
-    tr.appendChild(actionCell);
-
-    function Delete(taskId) {
-        fetch(`${apiBaseUrl}/${taskId}`, { // API URL'si burada kullanılmalı
-            method: 'DELETE',
-        })
-            .then((res) => {
-                if (res.ok) {
-                    console.log('Task is deleted.');
-                    const taskRow = document.querySelector(`[data-task-id="${taskId}"]`);
-                    if (taskRow) {
-                        taskRow.remove();
-                    }
+              .then((res) => {
+                if (!res.ok) {
+                  throw new Error("HTTP error " + res.status);
                 }
-            })
-            .catch((error) => {
-                console.error('Error:', error);
-            });
-    }
+              })
+              .catch((error) => {
+                console.error("Error:", error);
+              });
+          }
 
-    deletespan.setAttribute('data-task-id', taskId);
-    deletespan.addEventListener('click', function () {
-        const taskIdToDelete = deletespan.getAttribute('data-tadk-id');
-        Delete(taskIdToDelete);
-        todolist.removeChild(tr);
-    });
+        const actionCell = document.createElement('td');
+        const editspan = document.createElement('span');
+        editspan.textContent = 'Edit';
+        editspan.classList.add('edit');
 
-    function Editcell(tdElement) {
-        const input = document.createElement('input');
-        input.type = 'text';
-        input.classList.add('edit-input');
+        const deletespan = document.createElement('span');
+        deletespan.textContent = 'Delete';
+        deletespan.classList.add('delete');
 
-        input.value = tdElement.textContent;
-        tdElement.textContent = '';
-        tdElement.appendChild(input);
+        actionCell.appendChild(editspan);
+        actionCell.appendChild(deletespan);
+        tr.appendChild(actionCell);
 
-        return input;
-    }
-
-    function Edit(taskId, tr) {
-        const nameCell = tr.querySelector(".new-name");
-        const descriptionCell = tr.querySelector(".new-description");
-
-        const nameinput = Editcell(nameCell);
-        const descriptioninput = Editcell(descriptionCell);
-
-        const editButton = tr.querySelector(".edit");
-        editButton.textContent = "Save";
-
-        function handleSaveClick() {
-            const updatedTitle = nameinput.value;
-            const updatedDescription = descriptioninput.value;
-
-            const updateTaskData = {
-                content: updatedTitle,
-                description: updatedDescription,
-            };
-
-            fetch(`https://64d68e012a017531bc12bfa5.mockapi.io/todoapp/${taskId}`, {
-                method: "PUT",
-                headers: { "content-type": "application/json" },
-                body: JSON.stringify(updateTaskData),
+        function Delete(taskId) {
+            fetch(`${apiBaseUrl}/${taskId}`, { // API URL'si burada kullanılmalı
+                method: 'DELETE',
             })
                 .then((res) => {
                     if (res.ok) {
-                        return res.json();
+                        console.log('Task is deleted.');
+                        const taskRow = document.querySelector(`[data-task-id="${taskId}"]`);
+                        if (taskRow) {
+                            taskRow.remove();
+                        }
                     }
                 })
-                .then((updatedTask) => {
-                    console.log("Task updated:", updatedTask);
-
-                    nameCell.textContent = updatedTitle;
-                    descriptionCell.textContent = updatedDescription;
-                    editButton.textContent = "Edit";
-                    editButton.removeEventListener("click", handleSaveClick);
-                    editButton.addEventListener("click", handleEditClick);
-                })
                 .catch((error) => {
-                    console.error("Error:", error);
+                    console.error('Error:', error);
                 });
         }
 
-        function handleEditClick() {
+        deletespan.setAttribute('data-task-id', taskId);
+        deletespan.addEventListener('click', function () {
+            const taskIdToDelete = deletespan.getAttribute('data-tadk-id');
+            Delete(taskIdToDelete);
+            todolist.removeChild(tr);
+        });
+
+        function Editcell(tdElement) {
+            const input = document.createElement('input');
+            input.type = 'text';
+            input.classList.add('edit-input');
+
+            input.value = tdElement.textContent;
+            tdElement.textContent = '';
+            tdElement.appendChild(input);
+
+            return input;
+        }
+
+        function Edit(taskId, tr) {
+            const nameCell = tr.querySelector(".new-name");
+            const descriptionCell = tr.querySelector(".new-description");
+
+            const nameinput = Editcell(nameCell);
+            const descriptioninput = Editcell(descriptionCell);
+
+            const editButton = tr.querySelector(".edit");
+            editButton.textContent = "Save";
+
+            function handleSaveClick() {
+                const updatedTitle = nameinput.value;
+                const updatedDescription = descriptioninput.value;
+
+                const updateTaskData = {
+                    content: updatedTitle,
+                    description: updatedDescription,
+                };
+
+                fetch(`https://64d68e012a017531bc12bfa5.mockapi.io/todoapp/${taskId}`, {
+                    method: "PUT",
+                    headers: { "content-type": "application/json" },
+                    body: JSON.stringify(updateTaskData),
+                })
+                    .then((res) => {
+                        if (res.ok) {
+                            return res.json();
+                        }
+                    })
+                    .then((updatedTask) => {
+                        console.log("Task updated:", updatedTask);
+
+                        nameCell.textContent = updatedTitle;
+                        descriptionCell.textContent = updatedDescription;
+                        editButton.textContent = "Edit";
+                        editButton.removeEventListener("click", handleSaveClick);
+                        editButton.addEventListener("click", handleEditClick);
+                    })
+                    .catch((error) => {
+                        console.error("Error:", error);
+                    });
+            }
+
+            function handleEditClick() {
+                editButton.removeEventListener("click", handleEditClick);
+                editButton.addEventListener("click", handleSaveClick);
+            }
+
             editButton.removeEventListener("click", handleEditClick);
             editButton.addEventListener("click", handleSaveClick);
         }
 
-        editButton.removeEventListener("click", handleEditClick);
-        editButton.addEventListener("click", handleSaveClick);
+        todolist.appendChild(tr);
+
+        editspan.setAttribute("data-task-id", taskId);
+        editspan.addEventListener("click", function () {
+            const taskIdToEdit = editspan.getAttribute("data-task-id");
+            Edit(taskIdToEdit, tr);
+        });
+    
     }
 
-    editspan.setAttribute("data-task-id", taskId);
-    editspan.addEventListener("click", function () {
-        const taskIdToEdit = editspan.getAttribute("data-task-id");
-        Edit(taskIdToEdit, tr);
-    });
-
+   
     todolist.appendChild(tr);
+
+    addbtn.addEventListener('click', () => {
+        createTodo();
+    });
 
     function createTodo() {
         const todotitle = document.querySelector('.todotitle');
@@ -191,8 +211,10 @@ document.addEventListener('DOMContentLoaded', () => {
         const newTask = {
             content: todotitle.value,
             description: description.value,
-            status: false,
+            status: true,
         };
+
+        taskNerde(newTask);
 
         fetch(`${apiBaseUrl}`, {
             method: 'POST',
@@ -215,6 +237,8 @@ document.addEventListener('DOMContentLoaded', () => {
         todotitle.value = '';
         description.value = '';
     }
+
+
 
     function loadTasksFromLocalStorage() {
         const savedTasks = localStorage.getItem("tasks");
@@ -239,10 +263,10 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    function completeTaskUI(completedspan) {
-        completedspan.textContent = "completed";
-        completedspan.style.backgroundColor = "green";
-        const tr = completedspan.parentElement.parentElement;
+    function completeTaskUI(pendingSpan) {
+        pendingSpan.textContent = "Completed";
+        pendingSpan.style.backgroundColor = "green";
+        const tr = pendingSpan.parentElement.parentElement;
         const nameCell = tr.querySelector(".new-name");
         const descriptionCell = tr.querySelector(".new-description");
         nameCell.style.textDecoration = "line-through";
@@ -267,9 +291,9 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function saveTaskStatusToLocalStorage() {
-        const pendingSpan = document.querySelectorAll(".pending");
-        const taskstatus = Array.from(pendingSpan).map(
-            (completedspan) => completedspan.textContent === "completed"
+        const pendingSpans = document.querySelectorAll(".pending");
+        const taskstatus = Array.from(pendingSpans).map(
+            (pendingSpan) => pendingSpan.textContent === "Completed"
         );
         localStorage.setItem("taskstatus", JSON.stringify(taskstatus));
     }
@@ -278,5 +302,7 @@ document.addEventListener('DOMContentLoaded', () => {
         saveTasksToLocalStorage();
         saveTaskStatusToLocalStorage();
     });
+
+    console.log();
 
 });
