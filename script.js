@@ -55,7 +55,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 tr.style.backgroundColor = "#f0f0f0";
             } else {
                 pendingSpan.textContent = "pending";
-                pendingSpan.style.backgroundColor = "red";
+                pendingSpan.style.backgroundColor = "rgb(231, 6, 252)";
                 todoname.style.textDecoration = "none";
                 tododescription.style.textDecoration = "none";
                 tr.style.backgroundColor = "white";

@@ -22,7 +22,6 @@ html {
 
 .todoapp__form {
     border: 1px solid #eee;
-    margin-bottom: 30px;
 }
 
 .todoapp__input {
@@ -41,6 +40,7 @@ html {
 
 .todoapp__list {
     border: 1px solid #eee;
+    margin-top: 30px;
 
 }
 
@@ -56,14 +56,14 @@ td {
 }
 
 .pending {
-    background-color: red;
+    background-color: rgb(231, 6, 252);
     color: aliceblue;
     padding: 0.5rem;
     border-radius: 10%;
 }
 
 .edit {
-    background-color: rgb(19, 19, 238);
+    background-color: rgb(0, 0, 155);
     color: aliceblue;
     padding: 0.5rem;
     border-radius: 10%;
@@ -71,7 +71,7 @@ td {
 }
 
 .delete {
-    background-color: red;
+    background-color: rgb(138, 6, 6);
     color: aliceblue;
     padding: 0.5rem;
     border-radius: 10%;
